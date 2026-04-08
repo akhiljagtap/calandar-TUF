@@ -3,6 +3,7 @@
 import * as React from 'react'
 import * as RechartsPrimitive from 'recharts'
 import type {
+  LegendPayload,
   TooltipContentProps as RechartsTooltipContentProps,
   TooltipValueType,
 } from 'recharts'
@@ -190,7 +191,7 @@ function ChartTooltipContent({
 
           return (
             <div
-              key={item.dataKey}
+              key={`${String(item.dataKey ?? item.name ?? 'value')}-${index}`}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center',
@@ -207,13 +208,11 @@ function ChartTooltipContent({
                       <div
                         className={cn(
                           'shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)',
-                          {
-                            'h-2.5 w-2.5': indicator === 'dot',
-                            'w-1': indicator === 'line',
-                            'w-0 border-[1.5px] border-dashed bg-transparent':
-                              indicator === 'dashed',
-                            'my-0.5': nestLabel && indicator === 'dashed',
-                          },
+                          indicator === 'dot' && 'h-2.5 w-2.5',
+                          indicator === 'line' && 'w-1',
+                          indicator === 'dashed' &&
+                            'w-0 border-[1.5px] border-dashed bg-transparent',
+                          nestLabel && indicator === 'dashed' && 'my-0.5',
                         )}
                         style={
                           {
@@ -261,7 +260,9 @@ function ChartLegendContent({
   verticalAlign = 'bottom',
   nameKey,
 }: React.ComponentProps<'div'> &
-  Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
+  {
+    payload?: ReadonlyArray<LegendPayload>
+    verticalAlign?: 'top' | 'bottom'
     hideIcon?: boolean
     nameKey?: string
   }) {
@@ -279,13 +280,13 @@ function ChartLegendContent({
         className,
       )}
     >
-      {payload.map((item) => {
+      {payload.map((item, index) => {
         const key = `${nameKey || item.dataKey || 'value'}`
         const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
         return (
           <div
-            key={item.value}
+            key={`${String(item.value ?? key)}-${index}`}
             className="[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3"
           >
             {itemConfig?.icon && !hideIcon ? (
