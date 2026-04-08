@@ -25,7 +25,7 @@ LocalStorage for persistence
 ## How to Run Locally 
 
 ```bash
-git clone <your-repo-link>
+git clone https://github.com/akhiljagtap/calandar-TUF
 cd <your-repo-folder>
 npm install
 npm run dev
